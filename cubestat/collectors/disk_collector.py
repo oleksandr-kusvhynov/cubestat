@@ -35,9 +35,9 @@ class LinuxDiskCollector(DiskCollector):
     def configure(self, config) -> 'LinuxDiskCollector':
         # Handle both Dict and Namespace objects
         if hasattr(config, 'get'):
-            refresh_ms = config.get('refresh_ms', 200)
+            refresh_ms = config.get('refresh_ms', 1000)
         else:
-            refresh_ms = getattr(config, 'refresh_ms', 200)
+            refresh_ms = getattr(config, 'refresh_ms', 1000)
         self.rate_reader = RateReader(refresh_ms)
         return self
     
