@@ -15,7 +15,7 @@ class CPUMode(DisplayMode):
 
 def auto_cpu_mode() -> CPUMode:
     cpu_count = os.cpu_count()
-    return CPUMode.all if cpu_count is not None and cpu_count < 20 else CPUMode.by_cluster
+    return CPUMode.all if cpu_count is not None and cpu_count < 32 else CPUMode.by_cluster
 
 
 @presenter_registry.register
