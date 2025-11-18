@@ -19,6 +19,7 @@ jobs:
     #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
     
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: read
       pull-requests: write
@@ -73,11 +74,13 @@ jobs:
 
       - name: Run Code Review
         id: code-review
-        uses: anthropics/claude-code-base-action@beta
+        uses: anthropics/claude-code-action@v1
         with:
           prompt_file: /tmp/claude-prompts/review-prompt.txt
-          allowed_tools: "Bash,Task,Glob,Read,Grep,mcp__github__get_pull_request,mcp__github__get_pull_request_files,mcp__github__get_pull_request_diff,mcp__github__get_pull_request_comments,mcp__github__get_pull_request_reviews,mcp__github__search_pull_requests,mcp__github__list_pull_requests,mcp__github__search_issues,mcp__github__create_pending_pull_request_review,mcp__github__add_pull_request_review_comment_to_pending_review,mcp__github__submit_pending_pull_request_review,mcp__github__add_issue_comment,mcp__github__create_and_submit_pull_request_review"
-          mcp_config: |
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: |
+            --allowedTools Bash,Task,Glob,Read,Grep,mcp__github__get_pull_request,mcp__github__get_pull_request_files,mcp__github__get_pull_request_diff,mcp__github__get_pull_request_comments,mcp__github__get_pull_request_reviews,mcp__github__search_pull_requests,mcp__github__list_pull_requests,mcp__github__search_issues,mcp__github__create_pending_pull_request_review,mcp__github__add_pull_request_review_comment_to_pending_review,mcp__github__submit_pending_pull_request_review,mcp__github__add_issue_comment,mcp__github__create_and_submit_pull_request_review
+          settings: |
             {
               "mcpServers": {
                 "github": {
@@ -96,11 +99,10 @@ jobs:
                 }
               }
             }
-          timeout_minutes: "10"
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          
+
           # Optional: Specify model (defaults to Claude Sonnet 4, uncomment for Claude Opus 4)
-          # model: "claude-opus-4-20250514"
+          # claude_args: |
+          #   --model claude-opus-4-20250514
           
           # Optional: Skip review for certain conditions
           # if: |
