@@ -33,50 +33,42 @@ jobs:
           fetch-depth: 1
 
 
-      - name: Create review prompt
-        run: |
-          mkdir -p /tmp/claude-prompts
-          cat > /tmp/claude-prompts/review-prompt.txt << 'EOF'
-          Please review this pull request and provide feedback.
-          
-          Pull Request Information:
-          - REPO: ${GITHUB_REPOSITORY}
-          - PR_NUMBER: ${{ github.event.pull_request.number }}
-          
-          TASK OVERVIEW:
-          
-          1. First, use the GitHub MCP tools to get context about the pull request:
-             - Use mcp__github__get_pull_request to get PR details
-             - Use mcp__github__get_pull_request_files to see what files were changed
-             - Use mcp__github__get_pull_request_diff to get the actual code changes
-             - Use mcp__github__get_pull_request_comments to see any existing discussion
-          
-          2. When making a decision, search and consult previous examples of good/bad code review.
-             Use labels assigned to PRs: good_review, false_approve_review, false_request_changes_review.
-             Use mcp__github__search_pull_requests tool for that. Check other comments on these PRs to understand
-             why it was considered good or bad.
-
-          3. Reference the past PRs you used in your comment in <pr_examples></pr_examples> tag pairs.
-
-          4. Avoid generic comments. Your feedback must be immediately actionable.
-          
-          5. After your analysis, use mcp__github__create_and_submit_pull_request_review to create and submit review with either APPROVE or REQUEST_CHANGES event.
-
-          IMPORTANT GUIDELINES:
-          - Provide specific, actionable feedback
-          - Focus on code quality, potential bugs, and performance issues
-          - Reference specific lines of code when possible
-          - Be constructive in your criticism
-          - Only approve if the code meets quality standards
-          EOF
-        env:
-          GITHUB_REPOSITORY: ${{ github.repository }}
-
       - name: Run Code Review
         id: code-review
         uses: anthropics/claude-code-action@v1
         with:
-          prompt_file: /tmp/claude-prompts/review-prompt.txt
+          prompt: |
+            Please review this pull request and provide feedback.
+
+            Pull Request Information:
+            - REPO: ${{ github.repository }}
+            - PR_NUMBER: ${{ github.event.pull_request.number }}
+
+            TASK OVERVIEW:
+
+            1. First, use the GitHub MCP tools to get context about the pull request:
+               - Use mcp__github__get_pull_request to get PR details
+               - Use mcp__github__get_pull_request_files to see what files were changed
+               - Use mcp__github__get_pull_request_diff to get the actual code changes
+               - Use mcp__github__get_pull_request_comments to see any existing discussion
+
+            2. When making a decision, search and consult previous examples of good/bad code review.
+               Use labels assigned to PRs: good_review, false_approve_review, false_request_changes_review.
+               Use mcp__github__search_pull_requests tool for that. Check other comments on these PRs to understand
+               why it was considered good or bad.
+
+            3. Reference the past PRs you used in your comment in <pr_examples></pr_examples> tag pairs.
+
+            4. Avoid generic comments. Your feedback must be immediately actionable.
+
+            5. After your analysis, use mcp__github__create_and_submit_pull_request_review to create and submit review with either APPROVE or REQUEST_CHANGES event.
+
+            IMPORTANT GUIDELINES:
+            - Provide specific, actionable feedback
+            - Focus on code quality, potential bugs, and performance issues
+            - Reference specific lines of code when possible
+            - Be constructive in your criticism
+            - Only approve if the code meets quality standards
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_args: |
             --allowedTools Bash,Task,Glob,Read,Grep,mcp__github__get_pull_request,mcp__github__get_pull_request_files,mcp__github__get_pull_request_diff,mcp__github__get_pull_request_comments,mcp__github__get_pull_request_reviews,mcp__github__search_pull_requests,mcp__github__list_pull_requests,mcp__github__search_issues,mcp__github__create_pending_pull_request_review,mcp__github__add_pull_request_review_comment_to_pending_review,mcp__github__submit_pending_pull_request_review,mcp__github__add_issue_comment,mcp__github__create_and_submit_pull_request_review
